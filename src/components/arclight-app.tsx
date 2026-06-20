@@ -394,12 +394,12 @@ export function ResiliencePanel({
           AI RECOMMENDATIONS
         </div>
         {recs.map((r, i) => {
-          const applied = useArclight.getState().appliedRecs.includes(r.title);
+          const applied = appliedRecs.includes(r.title);
           return (
             <button
               type="button"
               key={i}
-              onClick={() => useArclight.getState().applyRecommendation(r.title)}
+              onClick={() => applyRecommendation(r.title)}
               disabled={applied}
               className={`w-full text-left flex items-start gap-3 rounded-lg border px-3 py-2.5 transition ${
                 applied
