@@ -39,9 +39,11 @@ function EcosystemPage() {
   const addDependency = useArclight((s) => s.addDependency);
   const removeNode = useArclight((s) => s.removeNode);
   const reset = useArclight((s) => s.resetEcosystem);
+  const loadDemoData = useArclight((s) => s.loadDemoData);
 
   const [workflow, setWorkflow] = useState("");
   const [provider, setProvider] = useState(PROVIDERS[0].name);
+  const [filter, setFilter] = useState("");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,22 +53,33 @@ function EcosystemPage() {
     setWorkflow("");
   };
 
+  const filtered = ecosystem.nodes.filter(
+    (n) => !filter.trim() || n.label.toLowerCase().includes(filter.toLowerCase()) || n.kind.includes(filter.toLowerCase()),
+  );
+
   return (
     <div className="p-4 md:p-6 max-w-[1400px] mx-auto space-y-4">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Ecosystem Builder</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Define your workflows and the providers powering them. Changes propagate to every
-            view live.
+            Define your workflows and the providers powering them. Changes propagate to every view live.
           </p>
         </div>
-        <button
-          onClick={reset}
-          className="text-sm px-3 py-2 rounded-md border border-[color:var(--panel-border)] inline-flex items-center gap-2 hover:border-[color:var(--cyan)]"
-        >
-          <RotateCcw size={14} /> Reset to defaults
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={loadDemoData}
+            className="text-sm px-3 py-2 rounded-md border border-[color:var(--panel-border)] inline-flex items-center gap-2 hover:border-[color:var(--neon-purple)]"
+          >
+            <Sparkles size={14} className="text-[color:var(--neon-purple)]" /> Load demo data
+          </button>
+          <button
+            onClick={reset}
+            className="text-sm px-3 py-2 rounded-md border border-[color:var(--panel-border)] inline-flex items-center gap-2 hover:border-[color:var(--cyan)]"
+          >
+            <RotateCcw size={14} /> Reset to defaults
+          </button>
+        </div>
       </div>
 
       <form onSubmit={submit} className="panel p-5">
