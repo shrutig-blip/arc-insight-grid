@@ -1,6 +1,7 @@
 import { useRouterState } from "@tanstack/react-router";
-import { Bell, Command, Search } from "lucide-react";
+import { Command, Search } from "lucide-react";
 import { useArclight } from "@/lib/arclight-store";
+import { NotificationsPopover } from "./notifications-popover";
 
 const titles: Record<string, string> = {
   "/dashboard": "Mission Control",
@@ -16,6 +17,8 @@ export function AppHeader() {
   const pathname = useRouterState({ select: (r) => r.location.pathname });
   const workspace = useArclight((s) => s.workspace);
   const shock = useArclight((s) => s.shock);
+  const setPaletteOpen = useArclight((s) => s.setPaletteOpen);
+  const setAuthed = useArclight((s) => s.setAuthed);
 
   return (
     <header className="h-14 border-b border-[color:var(--panel-border)] px-4 md:px-6 flex items-center gap-4 bg-background/60 backdrop-blur sticky top-0 z-30">
@@ -35,26 +38,47 @@ export function AppHeader() {
           </div>
         )}
 
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[color:var(--panel-border)] bg-[oklch(0.20_0.025_260)]/60 text-xs text-muted-foreground min-w-[220px]">
+        <button
+          onClick={() => setPaletteOpen(true)}
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[color:var(--panel-border)] bg-[oklch(0.20_0.025_260)]/60 text-xs text-muted-foreground min-w-[240px] hover:border-[color:var(--cyan)]/60 hover:text-foreground transition"
+        >
           <Search size={13} />
-          <span className="flex-1">Search nodes, workflows…</span>
+          <span className="flex-1 text-left">Search nodes, workflows…</span>
           <span className="inline-flex items-center gap-0.5 text-[10px] font-mono">
             <Command size={10} /> K
           </span>
-        </div>
-
-        <button className="relative p-2 rounded-md hover:bg-[oklch(0.24_0.03_265)]/60 text-muted-foreground hover:text-foreground">
-          <Bell size={15} />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[color:var(--neon-pink)]" />
         </button>
 
-        <div
-          className="w-8 h-8 rounded-full grid place-items-center text-xs font-medium"
-          style={{ background: "linear-gradient(135deg, var(--cyan), var(--neon-purple))" }}
-        >
-          AR
-        </div>
+        <NotificationsPopover />
+
+        <AvatarMenu onSignOut={() => setAuthed(false)} />
       </div>
     </header>
+  );
+}
+
+function AvatarMenu({ onSignOut }: { onSignOut: () => void }) {
+  return (
+    <div className="relative group">
+      <button
+        className="w-8 h-8 rounded-full grid place-items-center text-xs font-medium"
+        style={{ background: "linear-gradient(135deg, var(--cyan), var(--neon-purple))" }}
+        aria-label="Account"
+      >
+        AR
+      </button>
+      <div className="absolute right-0 mt-2 w-48 rounded-lg border border-[color:var(--panel-border)] bg-[oklch(0.18_0.025_260)] shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto transition z-50">
+        <div className="px-3 py-2 border-b border-[color:var(--panel-border)]">
+          <div className="text-xs font-medium">Arclight Analyst</div>
+          <div className="text-[10px] text-muted-foreground font-mono">analyst@arclight.io</div>
+        </div>
+        <button
+          onClick={onSignOut}
+          className="w-full text-left px-3 py-2 text-xs hover:bg-[oklch(0.24_0.03_265)]/60"
+        >
+          Sign out
+        </button>
+      </div>
+    </div>
   );
 }
