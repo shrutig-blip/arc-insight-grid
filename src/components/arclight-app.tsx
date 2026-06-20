@@ -391,19 +391,33 @@ export function ResiliencePanel({
         <div className="text-[10px] tracking-[0.18em] text-muted-foreground font-mono mb-1">
           AI RECOMMENDATIONS
         </div>
-        {recs.map((r, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-3 rounded-lg border border-[color:var(--panel-border)] px-3 py-2.5 hover:border-[color:var(--cyan)]/50 transition"
-          >
-            <CheckCircle2 size={14} className="text-[color:var(--cyan)] mt-0.5 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium">{r.title}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{r.detail}</div>
-            </div>
-            <ArrowUpRight size={14} className="text-muted-foreground" />
-          </div>
-        ))}
+        {recs.map((r, i) => {
+          const applied = useArclight.getState().appliedRecs.includes(r.title);
+          return (
+            <button
+              type="button"
+              key={i}
+              onClick={() => useArclight.getState().applyRecommendation(r.title)}
+              disabled={applied}
+              className={`w-full text-left flex items-start gap-3 rounded-lg border px-3 py-2.5 transition ${
+                applied
+                  ? "border-[color:var(--success)]/40 bg-[color:var(--success)]/8"
+                  : "border-[color:var(--panel-border)] hover:border-[color:var(--cyan)]/50"
+              }`}
+            >
+              <CheckCircle2 size={14} className={applied ? "text-[color:var(--success)] mt-0.5 shrink-0" : "text-[color:var(--cyan)] mt-0.5 shrink-0"} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{r.title}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{r.detail}</div>
+              </div>
+              {applied ? (
+                <span className="text-[10px] font-mono text-[color:var(--success)] mt-0.5">APPLIED</span>
+              ) : (
+                <ArrowUpRight size={14} className="text-muted-foreground" />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
