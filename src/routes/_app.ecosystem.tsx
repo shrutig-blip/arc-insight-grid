@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useArclight } from "@/lib/arclight-store";
 import type { NodeKind } from "@/lib/arclight";
-import { Layers, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Layers, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/ecosystem")({
   component: EcosystemPage,
