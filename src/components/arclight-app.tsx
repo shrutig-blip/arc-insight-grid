@@ -295,6 +295,8 @@ export function ResiliencePanel({
   affectedWorkflows: { id: string; label: string }[];
   baseScore: number;
 }) {
+  const appliedRecs = useArclight((s) => s.appliedRecs);
+  const applyRecommendation = useArclight((s) => s.applyRecommendation);
   const blastRadius = affectedWorkflows.length;
   const severityScore = shock ? { low: 1, medium: 2, high: 3, critical: 4 }[shock.severity] : 0;
   const projected = Math.min(95, baseScore + 28 + (shock ? 5 : 0));
