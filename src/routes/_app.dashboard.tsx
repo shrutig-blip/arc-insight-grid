@@ -80,38 +80,8 @@ function DashboardPage() {
         <div className="flex flex-col gap-4 min-w-0">
           <SovereigntyPanel {...sov} />
 
-          <div className="panel p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Activity size={15} className="text-[color:var(--success)]" />
-              <h3 className="text-sm font-medium">Recent Signals</h3>
-            </div>
-            <ul className="space-y-2 text-sm">
-              {[
-                { t: "00:42", txt: "Concentration drift on OpenAI surpassed 45%", tone: "warning" },
-                { t: "00:31", txt: "Vector Search latency normalized", tone: "success" },
-                { t: "00:14", txt: "Postgres replica failover rehearsed", tone: "default" },
-                { t: "23:58", txt: "New AI workflow registered: Recommendations", tone: "default" },
-              ].map((s, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="text-[10px] font-mono text-muted-foreground mt-1 w-10">
-                    {s.t}
-                  </span>
-                  <span
-                    className="w-1.5 h-1.5 rounded-full mt-2"
-                    style={{
-                      background:
-                        s.tone === "warning"
-                          ? "var(--warning)"
-                          : s.tone === "success"
-                            ? "var(--success)"
-                            : "var(--cyan)",
-                    }}
-                  />
-                  <span className="flex-1 text-muted-foreground">{s.txt}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <RecentSignals />
+
         </div>
       </div>
 
