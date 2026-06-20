@@ -128,3 +128,38 @@ function RiskRow({ level, count, text }: { level: string; count: number; text: s
     </div>
   );
 }
+
+function RecentSignals() {
+  const signals = useArclight((s) => s.signals).slice(0, 6);
+  const toneColor: Record<string, string> = {
+    success: "var(--success)",
+    warning: "var(--warning)",
+    danger: "var(--danger)",
+    info: "var(--cyan)",
+    default: "var(--cyan)",
+  };
+  return (
+    <div className="panel p-5">
+      <div className="flex items-center gap-2 mb-3">
+        <Activity size={15} className="text-[color:var(--success)]" />
+        <h3 className="text-sm font-medium">Recent Signals</h3>
+        <span className="ml-auto text-[10px] font-mono text-muted-foreground tracking-widest">
+          {signals.length} EVENTS
+        </span>
+      </div>
+      {signals.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic">No signals yet — interact with the ecosystem to generate activity.</p>
+      ) : (
+        <ul className="space-y-2 text-sm">
+          {signals.map((s) => (
+            <li key={s.id} className="flex items-start gap-3">
+              <span className="text-[10px] font-mono text-muted-foreground mt-1 w-14 shrink-0">{relTime(s.ts)}</span>
+              <span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0" style={{ background: toneColor[s.tone] }} />
+              <span className="flex-1 text-muted-foreground">{s.text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
