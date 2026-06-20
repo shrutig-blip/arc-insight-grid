@@ -119,12 +119,18 @@ function EcosystemPage() {
         <div className="flex items-center gap-2 mb-3">
           <Layers size={15} className="text-[color:var(--cyan)]" />
           <h3 className="text-sm font-medium">Registered nodes</h3>
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter…"
+            className="ml-3 bg-[oklch(0.18_0.025_260)] border border-[color:var(--panel-border)] rounded-md px-2 py-1 text-xs focus:outline-none focus:border-[color:var(--cyan)] w-40"
+          />
           <span className="ml-auto text-[10px] font-mono text-muted-foreground tracking-widest">
-            {ecosystem.nodes.length} NODES · {ecosystem.edges.length} EDGES
+            {filtered.length}/{ecosystem.nodes.length} NODES · {ecosystem.edges.length} EDGES
           </span>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {ecosystem.nodes.map((n) => {
+          {filtered.map((n) => {
             const color = kindColor(n.kind);
             return (
               <div
