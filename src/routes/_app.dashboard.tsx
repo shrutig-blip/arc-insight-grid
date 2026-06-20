@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { useArclight } from "@/lib/arclight-store";
-import { computeImpact, computeSovereignty } from "@/lib/arclight";
+import { computeImpact, computeSovereignty, relTime } from "@/lib/arclight";
 import {
   DependencyGraph,
   Metric,
