@@ -70,9 +70,8 @@ export const shocks: Shock[] = [
 export function computeImpact(eco: Ecosystem, shock: Shock | null) {
   if (!shock) return { affectedNodeIds: new Set<string>(), affectedEdgeIds: new Set<string>(), affectedWorkflows: [] as DepNode[] };
   const directly = new Set(
-    eco.nodes.filter(n => (n.provider && shock.affectedProviders.includes(n.provider))).map(n => n.id),
+    eco.nodes.filter((n) => n.provider && shock.affectedProviders.includes(n.provider)).map((n) => n.id),
   );
-  // propagate upstream (workflows that depend on these)
   const affected = new Set(directly);
   let changed = true;
   while (changed) {
@@ -84,17 +83,17 @@ export function computeImpact(eco: Ecosystem, shock: Shock | null) {
       }
     }
   }
-  const affectedEdgeIds = new Set(eco.edges.filter(e => affected.has(e.source) && affected.has(e.target)).map(e => e.id));
-  const affectedWorkflows = eco.nodes.filter(n => n.kind === "workflow" && affected.has(n.id));
+  const affectedEdgeIds = new Set(
+    eco.edges.filter((e) => affected.has(e.source) && affected.has(e.target)).map((e) => e.id),
+  );
+  const affectedWorkflows = eco.nodes.filter((n) => n.kind === "workflow" && affected.has(n.id));
   return { affectedNodeIds: affected, affectedEdgeIds, affectedWorkflows };
 }
 
 export function computeSovereignty(eco: Ecosystem) {
-  // count workflow→provider exposure
   const providerLoad: Record<string, number> = {};
-  const workflows = eco.nodes.filter(n => n.kind === "workflow");
+  const workflows = eco.nodes.filter((n) => n.kind === "workflow");
   for (const wf of workflows) {
-    // find reachable providers
     const visited = new Set<string>([wf.id]);
     const stack = [wf.id];
     while (stack.length) {
@@ -102,7 +101,7 @@ export function computeSovereignty(eco: Ecosystem) {
       for (const e of eco.edges) if (e.source === cur && !visited.has(e.target)) { visited.add(e.target); stack.push(e.target); }
     }
     for (const id of visited) {
-      const n = eco.nodes.find(x => x.id === id);
+      const n = eco.nodes.find((x) => x.id === id);
       if (n?.provider) providerLoad[n.provider] = (providerLoad[n.provider] ?? 0) + 1;
     }
   }
@@ -113,11 +112,61 @@ export function computeSovereignty(eco: Ecosystem) {
 
   const topShare = breakdown[0]?.pct ?? 0;
   const diversity = breakdown.length;
-  // score: lower is worse. High concentration → low score
-  const concentrationPenalty = Math.max(0, topShare - 30); // >30% starts hurting
+  const concentrationPenalty = Math.max(0, topShare - 30);
   const diversityBonus = Math.min(20, diversity * 5);
   const score = Math.max(5, Math.min(100, 100 - concentrationPenalty * 1.4 + diversityBonus - 15));
   const rounded = Math.round(score);
   const risk: "Low" | "Medium" | "High" = rounded >= 70 ? "Low" : rounded >= 45 ? "Medium" : "High";
-  return { score: rounded, risk, breakdown };
+
+  const explain = [
+    { label: "Base", delta: 100, note: "Starting score" },
+    { label: "Concentration penalty", delta: -Math.round(concentrationPenalty * 1.4), note: `Top provider ${breakdown[0]?.provider ?? "—"} carries ${topShare}% (>30% penalized)` },
+    { label: "Diversity bonus", delta: +diversityBonus, note: `${diversity} distinct providers (×5, capped at 20)` },
+    { label: "Operational tax", delta: -15, note: "Constant for runtime + policy overhead" },
+  ];
+
+  return { score: rounded, risk, breakdown, explain, topShare, diversity };
+}
+
+export function generateReport(
+  eco: Ecosystem,
+  sov: ReturnType<typeof computeSovereignty>,
+  shock: Shock | null,
+) {
+  const date = new Date().toISOString();
+  const wfCount = eco.nodes.filter((n) => n.kind === "workflow").length;
+  const providers = new Set(eco.nodes.filter((n) => n.provider).map((n) => n.provider!)).size;
+  const top = sov.breakdown[0];
+  const md = `# Arclight Intelligence Briefing
+Generated: ${date}
+
+## Posture
+- Sovereignty Index: **${sov.score} / 100** (${sov.risk})
+- Workflows under monitoring: ${wfCount}
+- Distinct providers: ${providers}
+- Top concentration: ${top?.provider ?? "n/a"} @ ${top?.pct ?? 0}%
+- Active simulation: ${shock ? shock.label + " (" + shock.severity + ")" : "none"}
+
+## Score Explainability
+${sov.explain.map((e) => `- ${e.label}: ${e.delta >= 0 ? "+" : ""}${e.delta} — ${e.note}`).join("\n")}
+
+## Provider Breakdown
+${sov.breakdown.map((b) => `- ${b.provider}: ${b.pct}%`).join("\n")}
+
+## Recommendations
+1. Diversify model providers — keep any single vendor below 40% of cross-workflow exposure.
+2. Establish failover runbooks per critical workflow.
+3. Schedule weekly shock tests on the top-2 concentrated providers.
+`;
+  return md;
+}
+
+export function relTime(ts: number) {
+  const diff = Math.max(0, Date.now() - ts);
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 }
