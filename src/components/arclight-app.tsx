@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import ReactFlow, {
   Background,
   BackgroundVariant,
@@ -117,7 +117,9 @@ export function SovereigntyPanel({
   score,
   risk,
   breakdown,
+  explain,
 }: ReturnType<typeof computeSovereignty>) {
+  const [showExplain, setShowExplain] = useState(false);
   const riskColor =
     risk === "Low" ? "var(--success)" : risk === "Medium" ? "var(--warning)" : "var(--danger)";
   const r = 52;
@@ -130,7 +132,12 @@ export function SovereigntyPanel({
           <Shield size={16} className="text-[color:var(--cyan)]" />
           <h3 className="text-sm font-medium tracking-wide">Sovereignty Index</h3>
         </div>
-        <span className="text-[10px] font-mono tracking-widest text-muted-foreground">LIVE</span>
+        <button
+          onClick={() => setShowExplain((v) => !v)}
+          className="text-[10px] font-mono tracking-widest text-muted-foreground hover:text-[color:var(--cyan)] transition"
+        >
+          {showExplain ? "HIDE MATH" : "EXPLAIN"}
+        </button>
       </div>
       <div className="flex items-center gap-5">
         <div className="relative w-32 h-32 shrink-0">
@@ -157,16 +164,12 @@ export function SovereigntyPanel({
           <div className="absolute inset-0 grid place-items-center">
             <div className="text-center">
               <div className="text-3xl font-semibold neon-text leading-none">{score}</div>
-              <div className="text-[10px] tracking-[0.18em] text-muted-foreground mt-1 font-mono">
-                / 100
-              </div>
+              <div className="text-[10px] tracking-[0.18em] text-muted-foreground mt-1 font-mono">/ 100</div>
             </div>
           </div>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-mono">
-            Risk Level
-          </div>
+          <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-mono">Risk Level</div>
           <div
             className="mt-1 inline-flex items-center gap-2 px-2.5 py-1 rounded-md border"
             style={{
@@ -199,10 +202,33 @@ export function SovereigntyPanel({
           </div>
         </div>
       </div>
-      <p className="mt-4 text-xs text-muted-foreground border-t border-[color:var(--panel-border)] pt-3 leading-relaxed">
-        Score reflects provider concentration and ecosystem diversity. High dependence on a single
-        vendor reduces sovereignty.
-      </p>
+      {showExplain ? (
+        <div className="mt-4 border-t border-[color:var(--panel-border)] pt-3 space-y-1.5">
+          <div className="text-[10px] tracking-[0.18em] font-mono text-muted-foreground mb-1">SCORE COMPOSITION</div>
+          {explain.map((e) => (
+            <div key={e.label} className="flex items-start gap-3 text-xs">
+              <span
+                className="font-mono w-12 text-right shrink-0"
+                style={{ color: e.delta > 0 ? "var(--success)" : e.delta < 0 ? "var(--danger)" : "var(--cyan)" }}
+              >
+                {e.delta > 0 ? "+" : ""}{e.delta}
+              </span>
+              <div className="flex-1">
+                <div className="font-medium">{e.label}</div>
+                <div className="text-muted-foreground text-[11px]">{e.note}</div>
+              </div>
+            </div>
+          ))}
+          <div className="text-[10px] font-mono text-muted-foreground pt-2">
+            Formula: max(5, min(100, 100 − concentration×1.4 + diversity − 15))
+          </div>
+        </div>
+      ) : (
+        <p className="mt-4 text-xs text-muted-foreground border-t border-[color:var(--panel-border)] pt-3 leading-relaxed">
+          Score reflects provider concentration and ecosystem diversity. High dependence on a single
+          vendor reduces sovereignty.
+        </p>
+      )}
     </div>
   );
 }
@@ -269,6 +295,8 @@ export function ResiliencePanel({
   affectedWorkflows: { id: string; label: string }[];
   baseScore: number;
 }) {
+  const appliedRecs = useArclight((s) => s.appliedRecs);
+  const applyRecommendation = useArclight((s) => s.applyRecommendation);
   const blastRadius = affectedWorkflows.length;
   const severityScore = shock ? { low: 1, medium: 2, high: 3, critical: 4 }[shock.severity] : 0;
   const projected = Math.min(95, baseScore + 28 + (shock ? 5 : 0));
@@ -365,19 +393,33 @@ export function ResiliencePanel({
         <div className="text-[10px] tracking-[0.18em] text-muted-foreground font-mono mb-1">
           AI RECOMMENDATIONS
         </div>
-        {recs.map((r, i) => (
-          <div
-            key={i}
-            className="flex items-start gap-3 rounded-lg border border-[color:var(--panel-border)] px-3 py-2.5 hover:border-[color:var(--cyan)]/50 transition"
-          >
-            <CheckCircle2 size={14} className="text-[color:var(--cyan)] mt-0.5 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium">{r.title}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">{r.detail}</div>
-            </div>
-            <ArrowUpRight size={14} className="text-muted-foreground" />
-          </div>
-        ))}
+        {recs.map((r, i) => {
+          const applied = appliedRecs.includes(r.title);
+          return (
+            <button
+              type="button"
+              key={i}
+              onClick={() => applyRecommendation(r.title)}
+              disabled={applied}
+              className={`w-full text-left flex items-start gap-3 rounded-lg border px-3 py-2.5 transition ${
+                applied
+                  ? "border-[color:var(--success)]/40 bg-[color:var(--success)]/8"
+                  : "border-[color:var(--panel-border)] hover:border-[color:var(--cyan)]/50"
+              }`}
+            >
+              <CheckCircle2 size={14} className={applied ? "text-[color:var(--success)] mt-0.5 shrink-0" : "text-[color:var(--cyan)] mt-0.5 shrink-0"} />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium">{r.title}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{r.detail}</div>
+              </div>
+              {applied ? (
+                <span className="text-[10px] font-mono text-[color:var(--success)] mt-0.5">APPLIED</span>
+              ) : (
+                <ArrowUpRight size={14} className="text-muted-foreground" />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

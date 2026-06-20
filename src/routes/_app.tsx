@@ -1,6 +1,8 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { Toaster } from "sonner";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
+import { CommandPalette } from "@/components/command-palette";
 import { useArclight } from "@/lib/arclight-store";
 
 export const Route = createFileRoute("/_app")({
@@ -9,7 +11,6 @@ export const Route = createFileRoute("/_app")({
 
 function AppLayout() {
   const authed = useArclight((s) => s.authed);
-  // mock auth gate (client-side); if not authed, send to login.
   if (typeof window !== "undefined" && !authed) {
     throw redirect({ to: "/" });
   }
@@ -22,6 +23,19 @@ function AppLayout() {
           <Outlet />
         </main>
       </div>
+      <CommandPalette />
+      <Toaster
+        theme="dark"
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: "oklch(0.18 0.025 260)",
+            border: "1px solid oklch(0.30 0.03 260)",
+            color: "oklch(0.95 0.01 260)",
+            fontSize: "12px",
+          },
+        }}
+      />
     </div>
   );
 }

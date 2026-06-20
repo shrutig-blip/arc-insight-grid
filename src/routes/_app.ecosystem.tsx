@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useArclight } from "@/lib/arclight-store";
 import type { NodeKind } from "@/lib/arclight";
-import { Layers, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Layers, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_app/ecosystem")({
   component: EcosystemPage,
@@ -39,9 +39,11 @@ function EcosystemPage() {
   const addDependency = useArclight((s) => s.addDependency);
   const removeNode = useArclight((s) => s.removeNode);
   const reset = useArclight((s) => s.resetEcosystem);
+  const loadDemoData = useArclight((s) => s.loadDemoData);
 
   const [workflow, setWorkflow] = useState("");
   const [provider, setProvider] = useState(PROVIDERS[0].name);
+  const [filter, setFilter] = useState("");
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,22 +53,33 @@ function EcosystemPage() {
     setWorkflow("");
   };
 
+  const filtered = ecosystem.nodes.filter(
+    (n) => !filter.trim() || n.label.toLowerCase().includes(filter.toLowerCase()) || n.kind.includes(filter.toLowerCase()),
+  );
+
   return (
     <div className="p-4 md:p-6 max-w-[1400px] mx-auto space-y-4">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Ecosystem Builder</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
-            Define your workflows and the providers powering them. Changes propagate to every
-            view live.
+            Define your workflows and the providers powering them. Changes propagate to every view live.
           </p>
         </div>
-        <button
-          onClick={reset}
-          className="text-sm px-3 py-2 rounded-md border border-[color:var(--panel-border)] inline-flex items-center gap-2 hover:border-[color:var(--cyan)]"
-        >
-          <RotateCcw size={14} /> Reset to defaults
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={loadDemoData}
+            className="text-sm px-3 py-2 rounded-md border border-[color:var(--panel-border)] inline-flex items-center gap-2 hover:border-[color:var(--neon-purple)]"
+          >
+            <Sparkles size={14} className="text-[color:var(--neon-purple)]" /> Load demo data
+          </button>
+          <button
+            onClick={reset}
+            className="text-sm px-3 py-2 rounded-md border border-[color:var(--panel-border)] inline-flex items-center gap-2 hover:border-[color:var(--cyan)]"
+          >
+            <RotateCcw size={14} /> Reset to defaults
+          </button>
+        </div>
       </div>
 
       <form onSubmit={submit} className="panel p-5">
@@ -106,12 +119,18 @@ function EcosystemPage() {
         <div className="flex items-center gap-2 mb-3">
           <Layers size={15} className="text-[color:var(--cyan)]" />
           <h3 className="text-sm font-medium">Registered nodes</h3>
+          <input
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter…"
+            className="ml-3 bg-[oklch(0.18_0.025_260)] border border-[color:var(--panel-border)] rounded-md px-2 py-1 text-xs focus:outline-none focus:border-[color:var(--cyan)] w-40"
+          />
           <span className="ml-auto text-[10px] font-mono text-muted-foreground tracking-widest">
-            {ecosystem.nodes.length} NODES · {ecosystem.edges.length} EDGES
+            {filtered.length}/{ecosystem.nodes.length} NODES · {ecosystem.edges.length} EDGES
           </span>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {ecosystem.nodes.map((n) => {
+          {filtered.map((n) => {
             const color = kindColor(n.kind);
             return (
               <div
