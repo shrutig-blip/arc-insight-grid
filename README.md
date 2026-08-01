@@ -1,8 +1,5 @@
 #  Arclight  
-exact-screenshot.shivi14112007.workers.dev
-
-Demo video link
-https://drive.google.com/drive/folders/1g5Ga4qywDpKyimWh7f999cq3H6PSvj3l
+Live working link: https://exact-screenshot.shivi14112007.workers.dev/
 
 ## AI Dependency Intelligence & Resilience Platform
 
@@ -12,7 +9,7 @@ https://drive.google.com/drive/folders/1g5Ga4qywDpKyimWh7f999cq3H6PSvj3l
 
 ---
 
-##  Overview
+## Overview
 
 Organizations increasingly rely on AI models, cloud providers, databases, and external APIs to power critical business workflows.
 
