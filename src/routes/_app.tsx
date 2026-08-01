@@ -3,6 +3,7 @@ import { Toaster } from "sonner";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AppHeader } from "@/components/app-header";
 import { CommandPalette } from "@/components/command-palette";
+import { useApplyTheme } from "@/components/theme-switcher";
 import { useArclight } from "@/lib/arclight-store";
 
 export const Route = createFileRoute("/_app")({
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/_app")({
 
 function AppLayout() {
   const authed = useArclight((s) => s.authed);
+  useApplyTheme();
   if (typeof window !== "undefined" && !authed) {
     throw redirect({ to: "/" });
   }

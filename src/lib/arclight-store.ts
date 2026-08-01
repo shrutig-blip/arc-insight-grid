@@ -39,12 +39,16 @@ export interface ReportRecord {
   markdown: string;
 }
 
+export type ThemeId = "cyber-blue" | "aurora-green" | "violet-pulse" | "amber-signal";
+
 interface ArclightState {
   ecosystem: Ecosystem;
   shock: Shock | null;
   selectedNodeId: string | null;
+  comparisonShockId: string | null;
   authed: boolean;
   workspace: string;
+  theme: ThemeId;
   signals: Signal[];
   alertRules: AlertRule[];
   controls: ComplianceControl[];
@@ -53,9 +57,11 @@ interface ArclightState {
   paletteOpen: boolean;
 
   setShock: (s: Shock | null) => void;
+  setComparisonShock: (id: string | null) => void;
   setSelected: (id: string | null) => void;
   setAuthed: (v: boolean) => void;
   setWorkspace: (w: string) => void;
+  setTheme: (t: ThemeId) => void;
   addDependency: (workflowLabel: string, providerLabel: string, kind: NodeKind) => void;
   removeNode: (id: string) => void;
   resetEcosystem: () => void;
@@ -90,8 +96,10 @@ export const useArclight = create<ArclightState>((set, get) => ({
   ecosystem: defaultEcosystem,
   shock: null,
   selectedNodeId: null,
+  comparisonShockId: null,
   authed: false,
   workspace: "production-ecosystem",
+  theme: "cyber-blue",
   signals: [
     { id: "s1", ts: Date.now() - 1000 * 60 * 18, tone: "warning", text: "Concentration drift on OpenAI surpassed 45%" },
     { id: "s2", ts: Date.now() - 1000 * 60 * 31, tone: "success", text: "Vector Search latency normalized" },
@@ -100,29 +108,24 @@ export const useArclight = create<ArclightState>((set, get) => ({
   ],
   alertRules: [
     { id: "slack", channel: "Slack #intel-alerts", scope: "Critical + High", enabled: true },
-    { id: "pager", channel: "PagerDuty (on-call)", scope: "Critical only", enabled: true },
-    { id: "email", channel: "Weekly briefing email", scope: "All severities", enabled: true },
-    { id: "webhook", channel: "Custom webhook", scope: "Disabled", enabled: false },
+    { id: "pager", channel: "PagerDuty · ai-platform", scope: "Critical only", enabled: true },
+    { id: "email", channel: "Email · security@arclight.io", scope: "All severities", enabled: false },
   ],
   controls: [
-    { id: "soc2", label: "SOC 2 evidence capture", detail: "Log every config change with actor + diff.", enabled: true },
-    { id: "eu-dr", label: "EU data residency", detail: "Block cross-region traffic for EU workflows.", enabled: true },
-    { id: "pii", label: "PII redaction at AI gateway", detail: "Strip PII before AI provider egress.", enabled: false },
-    { id: "kill", label: "Cost circuit-breaker", detail: "Auto-throttle providers above 4× baseline spend.", enabled: false },
-    { id: "audit", label: "Quarterly resilience attestation", detail: "Generate signed posture report every 90d.", enabled: true },
+    { id: "eu-ai-act", label: "EU AI Act controls", detail: "Tag high-risk workflows; require human-in-loop for tier-2 events.", enabled: true },
+    { id: "soc2", label: "SOC 2 telemetry", detail: "Forward provider posture into audit log every 6h.", enabled: true },
+    { id: "data-residency", label: "EU data residency", detail: "Block model calls routing outside EU regions.", enabled: false },
   ],
   reports: [],
   appliedRecs: [],
   paletteOpen: false,
 
-  setShock: (shock) => {
-    set({ shock });
-    if (shock) get().pushSignal("danger", `Shock simulation started: ${shock.label}`);
-    else get().pushSignal("info", "Shock simulation cleared — baseline restored");
-  },
+  setShock: (s) => set({ shock: s }),
+  setComparisonShock: (id) => set({ comparisonShockId: id }),
   setSelected: (id) => set({ selectedNodeId: id }),
   setAuthed: (v) => set({ authed: v }),
   setWorkspace: (w) => set({ workspace: w }),
+  setTheme: (t) => set({ theme: t }),
 
   addDependency: (workflowLabel, providerLabel, kind) => {
     set((state) => {
@@ -186,7 +189,7 @@ export const useArclight = create<ArclightState>((set, get) => ({
   pushSignal: (tone, text) =>
     set((state) => ({
       signals: [
-        { id: `s-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, ts: Date.now(), tone, text },
+        { id: `s-${Date.now()}-${state.signals.length}`, ts: Date.now(), tone, text },
         ...state.signals,
       ].slice(0, 50),
     })),

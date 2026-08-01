@@ -50,7 +50,7 @@
   --card-foreground: oklch(0.96 0.01 250);
   --popover: oklch(0.20 0.025 260);
   --popover-foreground: oklch(0.96 0.01 250);
-  --primary: oklch(0.72 0.18 230);
+  --primary: oklch(0.82 0.15 200);
   --primary-foreground: oklch(0.12 0.02 260);
   --secondary: oklch(0.26 0.03 260);
   --secondary-foreground: oklch(0.96 0.01 250);
@@ -62,7 +62,7 @@
   --destructive-foreground: oklch(0.98 0.01 250);
   --border: oklch(0.30 0.03 260 / 50%);
   --input: oklch(0.30 0.03 260 / 60%);
-  --ring: oklch(0.72 0.18 230);
+  --ring: oklch(0.82 0.15 200);
 
   --neon-blue: oklch(0.72 0.18 230);
   --cyan: oklch(0.82 0.15 200);
@@ -71,6 +71,35 @@
   --success: oklch(0.78 0.17 160);
   --warning: oklch(0.82 0.17 80);
   --danger: oklch(0.68 0.22 25);
+
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--neon-purple));
+  --shadow-glow: 0 0 24px color-mix(in oklab, var(--primary) 40%, transparent);
+}
+
+/* Neon themes */
+[data-theme="cyber-blue"] {
+  --primary: oklch(0.82 0.15 200);
+  --ring: oklch(0.82 0.15 200);
+  --neon-purple: oklch(0.68 0.20 295);
+  --neon-pink: oklch(0.72 0.22 340);
+}
+[data-theme="aurora-green"] {
+  --primary: oklch(0.84 0.18 160);
+  --ring: oklch(0.84 0.18 160);
+  --neon-purple: oklch(0.78 0.20 180);
+  --neon-pink: oklch(0.82 0.17 130);
+}
+[data-theme="violet-pulse"] {
+  --primary: oklch(0.72 0.22 295);
+  --ring: oklch(0.72 0.22 295);
+  --neon-purple: oklch(0.72 0.24 320);
+  --neon-pink: oklch(0.72 0.22 340);
+}
+[data-theme="amber-signal"] {
+  --primary: oklch(0.82 0.17 70);
+  --ring: oklch(0.82 0.17 70);
+  --neon-purple: oklch(0.78 0.20 40);
+  --neon-pink: oklch(0.78 0.22 20);
 }
 
 @layer base {
@@ -79,8 +108,8 @@
   body {
     font-family: var(--font-display);
     background-image:
-      radial-gradient(ellipse 80% 60% at 20% 0%, oklch(0.25 0.08 260 / 0.5), transparent 60%),
-      radial-gradient(ellipse 60% 50% at 100% 100%, oklch(0.22 0.10 290 / 0.4), transparent 60%);
+      radial-gradient(ellipse 80% 60% at 20% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, color-mix(in oklab, var(--neon-purple) 22%, transparent), transparent 60%);
     background-attachment: fixed;
   }
 }
@@ -89,18 +118,17 @@
   background: linear-gradient(180deg, oklch(0.21 0.025 260 / 0.85), oklch(0.18 0.025 260 / 0.85));
   border: 1px solid var(--panel-border);
   border-radius: var(--radius);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
 }
 
 @utility neon-text {
-  background: linear-gradient(90deg, var(--cyan), var(--neon-purple));
-  -webkit-background-clip: text;
+  background: linear-gradient(90deg, var(--primary), var(--neon-purple));
   background-clip: text;
   color: transparent;
 }
 
 @utility glow-ring {
-  box-shadow: 0 0 0 1px oklch(0.72 0.18 230 / 0.4), 0 0 24px oklch(0.72 0.18 230 / 0.25);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 40%, transparent), 0 0 24px color-mix(in oklab, var(--primary) 25%, transparent);
 }
 
 @keyframes pulse-glow {
@@ -115,15 +143,17 @@
 }
 .scan-line::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent, oklch(0.82 0.15 200 / 0.15), transparent);
-  animation: scan 3s linear infinite;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--primary) 18%, transparent), transparent);
+  animation: scan 4s linear infinite;
   pointer-events: none;
 }
 
 .react-flow__edge-path { stroke: oklch(0.55 0.10 250 / 0.7); stroke-width: 1.5; }
-.react-flow__edge.affected .react-flow__edge-path { stroke: oklch(0.68 0.22 25); stroke-width: 2.5; filter: drop-shadow(0 0 6px oklch(0.68 0.22 25 / 0.8)); }
+.react-flow__edge.affected .react-flow__edge-path { stroke: oklch(0.68 0.22 25); stroke-width: 2.5; filter: drop-shadow(0 0 8px oklch(0.68 0.22 25 / 0.9)); }
 .react-flow__background { background-color: transparent; }
-.react-flow__controls { background: oklch(0.20 0.025 260); border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden; }
-.react-flow__controls-button { background: transparent; border: none; color: oklch(0.96 0.01 250); }
-.react-flow__controls-button:hover { background: oklch(0.28 0.04 270); }
-.react-flow__attribution { background: transparent !important; color: oklch(0.5 0.02 260) !important; }
+.react-flow__controls { background: oklch(0.20 0.025 260 / 0.9); border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden; backdrop-filter: blur(8px); }
+.react-flow__controls-button { background: transparent; border: none; color: oklch(0.96 0.01 250); border-bottom: 1px solid var(--panel-border); }
+.react-flow__controls-button:hover { background: color-mix(in oklab, var(--primary) 18%, transparent); color: var(--primary); }
+.react-flow__attribution { display: none; }
+.react-flow__minimap { border-radius: 8px; }
+.react-flow__node { transition: transform 200ms ease; }

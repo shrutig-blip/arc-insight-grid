@@ -2,11 +2,13 @@ import { useRouterState } from "@tanstack/react-router";
 import { Command, Search } from "lucide-react";
 import { useArclight } from "@/lib/arclight-store";
 import { NotificationsPopover } from "./notifications-popover";
+import { ThemeSwitcher } from "./theme-switcher";
 
 const titles: Record<string, string> = {
   "/dashboard": "Mission Control",
-  "/graph": "Dependency Topology",
-  "/simulation": "Risk Simulation Lab",
+  "/graph": "Dependency Mapping",
+  "/simulation": "Risk Simulator",
+  "/timeline": "Risk Timeline",
   "/reports": "Intelligence Reports",
   "/ecosystem": "Ecosystem Builder",
   "/analytics": "Analytics & Trends",
@@ -21,7 +23,7 @@ export function AppHeader() {
   const setAuthed = useArclight((s) => s.setAuthed);
 
   return (
-    <header className="h-14 border-b border-[color:var(--panel-border)] px-4 md:px-6 flex items-center gap-4 bg-background/60 backdrop-blur sticky top-0 z-30">
+    <header className="h-14 border-b border-[color:var(--panel-border)] px-4 md:px-6 flex items-center gap-4 bg-background/60 backdrop-blur-xl sticky top-0 z-30">
       <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground">
         <span>arclight</span>
         <span className="opacity-50">/</span>
@@ -40,7 +42,7 @@ export function AppHeader() {
 
         <button
           onClick={() => setPaletteOpen(true)}
-          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[color:var(--panel-border)] bg-[oklch(0.20_0.025_260)]/60 text-xs text-muted-foreground min-w-[240px] hover:border-[color:var(--cyan)]/60 hover:text-foreground transition"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md border border-[color:var(--panel-border)] bg-[oklch(0.20_0.025_260)]/60 text-xs text-muted-foreground min-w-[240px] hover:border-[color:var(--primary)]/60 hover:text-foreground transition"
         >
           <Search size={13} />
           <span className="flex-1 text-left">Search nodes, workflows…</span>
@@ -49,6 +51,7 @@ export function AppHeader() {
           </span>
         </button>
 
+        <ThemeSwitcher />
         <NotificationsPopover />
 
         <AvatarMenu onSignOut={() => setAuthed(false)} />
@@ -62,7 +65,7 @@ function AvatarMenu({ onSignOut }: { onSignOut: () => void }) {
     <div className="relative group">
       <button
         className="w-8 h-8 rounded-full grid place-items-center text-xs font-medium"
-        style={{ background: "linear-gradient(135deg, var(--cyan), var(--neon-purple))" }}
+        style={{ background: "linear-gradient(135deg, var(--primary), var(--neon-purple))" }}
         aria-label="Account"
       >
         AR

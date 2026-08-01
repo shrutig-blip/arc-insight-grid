@@ -8,14 +8,16 @@ import {
   LineChart,
   Settings,
   LogOut,
+  Clock,
 } from "lucide-react";
 import { Logo } from "./arclight-app";
 import { useArclight } from "@/lib/arclight-store";
 
 const items = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/graph", label: "Dependency Graph", icon: Network },
-  { to: "/simulation", label: "Risk Simulation", icon: Zap },
+  { to: "/graph", label: "Dependency Mapping", icon: Network },
+  { to: "/simulation", label: "Risk Simulator", icon: Zap },
+  { to: "/timeline", label: "Risk Timeline", icon: Clock },
   { to: "/reports", label: "Intelligence Reports", icon: Brain },
   { to: "/ecosystem", label: "Ecosystem Builder", icon: Layers },
   { to: "/analytics", label: "Analytics", icon: LineChart },
@@ -27,7 +29,7 @@ export function AppSidebar() {
   const setAuthed = useArclight((s) => s.setAuthed);
 
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-[color:var(--panel-border)] bg-[oklch(0.17_0.022_260)]/80 backdrop-blur">
+    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-[color:var(--panel-border)] bg-[oklch(0.17_0.022_260)]/80 backdrop-blur-xl">
       <div className="h-14 flex items-center px-5 border-b border-[color:var(--panel-border)]">
         <Logo />
       </div>
@@ -46,17 +48,17 @@ export function AppSidebar() {
                 to={item.to}
                 className={`group flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition ${
                   active
-                    ? "bg-[color:var(--cyan)]/12 text-foreground border border-[color:var(--cyan)]/30"
+                    ? "bg-[color:var(--primary)]/12 text-foreground border border-[color:var(--primary)]/30"
                     : "text-muted-foreground hover:text-foreground hover:bg-[oklch(0.24_0.03_265)]/60 border border-transparent"
                 }`}
               >
                 <Icon
                   size={15}
-                  className={active ? "text-[color:var(--cyan)]" : ""}
+                  className={active ? "text-[color:var(--primary)]" : ""}
                 />
                 <span className="flex-1">{item.label}</span>
                 {active && (
-                  <span className="w-1 h-1 rounded-full bg-[color:var(--cyan)] shadow-[0_0_8px_var(--cyan)]" />
+                  <span className="w-1 h-1 rounded-full bg-[color:var(--primary)] shadow-[0_0_8px_var(--primary)]" />
                 )}
               </Link>
             );
